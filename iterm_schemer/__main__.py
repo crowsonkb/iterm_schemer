@@ -26,6 +26,13 @@ def format_rgb(rgb):
     return s + '\033[0m'
 
 
+def set_iterm_palette(n, rgb):
+    """Sets the given iTerm2 palette slot to the given RGB color."""
+    rgb_ = np.uint8(np.round(rgb * 255))
+    esc = '\033]P{:s}{:02x}{:02x}{:02x}\033\\'.format(n, *rgb_)
+    print(esc, end='', flush=True)
+
+
 def main():
     """The main function."""
     parser = ArgumentParser(description=__doc__, allow_abbrev=False,
@@ -50,6 +57,7 @@ def main():
     args = parser.parse_args()
 
     scheme = plistlib.load(args.src_scheme)
+
     for i, row_name in enumerate(ROWS_TRANSLATE):
         row = scheme[row_name]
         rgb = np.float64([row[column] for column in COLUMNS])
@@ -59,12 +67,12 @@ def main():
                             invert_J=invert_J, J_factor=j_fac, M_factor=args.m_fac)
         for j, column in enumerate(COLUMNS):
             row[column] = rgb_dst[j]
+
         print('{:<18} {} → {}'.format(row_name, format_rgb(rgb), format_rgb(rgb_dst)))
         if args.set_palette:
             n = '0123456789abcdefghilm'[i]
-            rgb_ = np.uint8(np.round(rgb_dst * 255))
-            esc = '\033]P{:s}{:02x}{:02x}{:02x}\033\\'.format(n, *rgb_)
-            print(esc, end='', flush=True)
+            set_iterm_palette(n, rgb_dst)
+
     plistlib.dump(scheme, args.dst_scheme)
 
 if __name__ == '__main__':
