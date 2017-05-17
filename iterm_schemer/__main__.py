@@ -54,8 +54,9 @@ def main():
         row = scheme[row_name]
         rgb = np.float64([row[column] for column in COLUMNS])
         invert_J = args.invert and row_name in ROWS_INVERT
+        j_fac = 1 if row_name in ROWS_INVERT else args.j_fac
         rgb_dst = translate(rgb, get_conds(args.src_bg), get_conds(args.dst_bg),
-                            invert_J=invert_J, J_factor=args.j_fac, M_factor=args.m_fac)
+                            invert_J=invert_J, J_factor=j_fac, M_factor=args.m_fac)
         for j, column in enumerate(COLUMNS):
             row[column] = rgb_dst[j]
         print('{:<18} {} → {}'.format(row_name, format_rgb(rgb), format_rgb(rgb_dst)))
