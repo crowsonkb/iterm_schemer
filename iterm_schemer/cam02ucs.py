@@ -14,7 +14,7 @@ NEUTRAL_BG = Conditions(80, 16, 16, colour.CIECAM02_VIEWING_CONDITIONS['Average'
 LIGHT_BG = Conditions(80, 16, 80, colour.CIECAM02_VIEWING_CONDITIONS['Average'])
 
 
-def get_conds(bg):
+def get_conds(bg='neutral'):
     bg = bg.lower()
     if bg == 'dark':
         return DARK_BG

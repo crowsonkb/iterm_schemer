@@ -5,12 +5,26 @@ import plistlib
 
 import numpy as np
 
-from iterm_schemer.cam02ucs import get_conds, translate
+from iterm_schemer.cam02ucs import get_conds, rgb_to_ucs, translate
 
 ROWS_TRANSLATE = ['Ansi %d Color' % i for i in range(16)]
 ROWS_INVERT = ['Foreground', 'Background', 'Bold', 'Cursor', 'Cursor Text']
 ROWS_INVERT = [k + ' Color' for k in ROWS_INVERT]
 COLUMNS = ['Red Component', 'Green Component', 'Blue Component']
+
+
+def format_rgb(rgb):
+    """Formats an RGB color array for display on a 24-bit color terminal."""
+    rgb = np.uint8(np.round(rgb * 255))
+    s = ''
+    if rgb_to_ucs(rgb, get_conds())[0] < 75:
+        s += '\033[38;2;255;255;255m'
+    else:
+        s += '\033[38;2;0;0;0m'
+    s += '\033[48;2;{};{};{}m'.format(*rgb)
+    s += '[{:>3} {:>3} {:>3}]'.format(*rgb)
+    return s + '\033[0m'
+
 
 def main():
     """The main function."""
@@ -42,7 +56,7 @@ def main():
                          invert_J=invert_J, J_factor=args.j_fac, M_factor=args.m_fac)
         for i, column in enumerate(COLUMNS):
             row[column] = rgb_[i]
-        print(row_name, rgb, rgb_)
+        print('{:<18} {} → {}'.format(row_name, format_rgb(rgb), format_rgb(rgb_)))
     plistlib.dump(scheme, args.dst_scheme)
 
 if __name__ == '__main__':
