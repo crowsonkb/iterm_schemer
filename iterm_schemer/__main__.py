@@ -7,9 +7,9 @@ import numpy as np
 
 from iterm_schemer.cam02ucs import get_conds, rgb_to_ucs, translate
 
-ROWS_TRANSLATE = ['Ansi %d Color' % i for i in range(16)]
 ROWS_INVERT = ['Foreground', 'Background', 'Bold', 'Cursor', 'Cursor Text']
 ROWS_INVERT = [k + ' Color' for k in ROWS_INVERT]
+ROWS_TRANSLATE = ['Ansi %d Color' % i for i in range(16)] + ROWS_INVERT
 COLUMNS = ['Red Component', 'Green Component', 'Blue Component']
 
 
@@ -48,7 +48,7 @@ def main():
     args = parser.parse_args()
 
     scheme = plistlib.load(args.src_scheme)
-    for row_name in ROWS_TRANSLATE + ROWS_INVERT:
+    for row_name in ROWS_TRANSLATE:
         row = scheme[row_name]
         rgb = np.float64([row[column] for column in COLUMNS])
         invert_J = args.invert and row_name in ROWS_INVERT
