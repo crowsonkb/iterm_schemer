@@ -45,18 +45,25 @@ def main():
                         help='The factor to scale output lightness by.')
     parser.add_argument('--m-fac', type=float, default=1.0,
                         help='The factor to scale output colorfulness by.')
+    parser.add_argument('--set-palette', action='store_true',
+                        help='Set the current terminal tab\'s palette to the output color scheme.')
     args = parser.parse_args()
 
     scheme = plistlib.load(args.src_scheme)
-    for row_name in ROWS_TRANSLATE:
+    for i, row_name in enumerate(ROWS_TRANSLATE):
         row = scheme[row_name]
         rgb = np.float64([row[column] for column in COLUMNS])
         invert_J = args.invert and row_name in ROWS_INVERT
-        rgb_ = translate(rgb, get_conds(args.src_bg), get_conds(args.dst_bg),
-                         invert_J=invert_J, J_factor=args.j_fac, M_factor=args.m_fac)
-        for i, column in enumerate(COLUMNS):
-            row[column] = rgb_[i]
-        print('{:<18} {} → {}'.format(row_name, format_rgb(rgb), format_rgb(rgb_)))
+        rgb_dst = translate(rgb, get_conds(args.src_bg), get_conds(args.dst_bg),
+                            invert_J=invert_J, J_factor=args.j_fac, M_factor=args.m_fac)
+        for j, column in enumerate(COLUMNS):
+            row[column] = rgb_dst[j]
+        print('{:<18} {} → {}'.format(row_name, format_rgb(rgb), format_rgb(rgb_dst)))
+        if args.set_palette:
+            n = '0123456789abcdefghilm'[i]
+            rgb_ = np.uint8(np.round(rgb_dst * 255))
+            esc = '\033]P{:s}{:02x}{:02x}{:02x}\033\\'.format(n, *rgb_)
+            print(esc, end='', flush=True)
     plistlib.dump(scheme, args.dst_scheme)
 
 if __name__ == '__main__':
