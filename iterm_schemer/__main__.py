@@ -15,14 +15,14 @@ COLUMNS = ['Red Component', 'Green Component', 'Blue Component']
 
 def format_rgb(rgb):
     """Formats an RGB color array for display on a 24-bit color terminal."""
-    rgb = np.uint8(np.round(rgb * 255))
+    rgb_ = np.uint8(np.round(rgb * 255))
     s = ''
-    if rgb_to_ucs(rgb, get_conds())[0] < 75:
+    if rgb_to_ucs(rgb, get_conds())[0] < 30:
         s += '\033[38;2;255;255;255m'
     else:
         s += '\033[38;2;0;0;0m'
-    s += '\033[48;2;{};{};{}m'.format(*rgb)
-    s += '[{:>3} {:>3} {:>3}]'.format(*rgb)
+    s += '\033[48;2;{};{};{}m'.format(*rgb_)
+    s += '[{:>3} {:>3} {:>3}]'.format(*rgb_)
     return s + '\033[0m'
 
 
